@@ -134,3 +134,205 @@ export function fft(re, im, invert) {
     }
   }
 }
+
+// --- 安全な数式パーサー (eval/Function を使わず、V(x) をユーザー入力から評価する) ---
+// 対応: + - * / ^ 単項マイナス 括弧 sin cos tan exp sqrt abs log 定数 pi e 変数 x
+const FUNCS = {
+  sin: Math.sin, cos: Math.cos, tan: Math.tan,
+  exp: Math.exp, sqrt: Math.sqrt, abs: Math.abs,
+  log: Math.log, tanh: Math.tanh,
+};
+const CONSTS = { pi: Math.PI, e: Math.E };
+
+function tokenize(expr) {
+  const tokens = [];
+  let i = 0;
+  while (i < expr.length) {
+    const c = expr[i];
+    if (/\s/.test(c)) { i++; continue; }
+    if (/[0-9.]/.test(c)) {
+      let j = i;
+      while (j < expr.length && /[0-9.]/.test(expr[j])) j++;
+      tokens.push({ type: 'num', value: parseFloat(expr.slice(i, j)) });
+      i = j;
+      continue;
+    }
+    if (/[a-zA-Z_]/.test(c)) {
+      let j = i;
+      while (j < expr.length && /[a-zA-Z_0-9]/.test(expr[j])) j++;
+      tokens.push({ type: 'id', value: expr.slice(i, j) });
+      i = j;
+      continue;
+    }
+    if ('+-*/^(),'.includes(c)) {
+      tokens.push({ type: 'op', value: c });
+      i++;
+      continue;
+    }
+    throw new Error(`不正な文字: "${c}"`);
+  }
+  return tokens;
+}
+
+// 再帰下降パーサー: expr -> term (('+'|'-') term)* ; term -> pow (('*'|'/') pow)* ;
+// pow -> unary ('^' unary)* ; unary -> '-' unary | primary ; primary -> num | id | id '(' expr ')' | '(' expr ')'
+function parseExpr(expr) {
+  const tokens = tokenize(expr);
+  let pos = 0;
+  const peek = () => tokens[pos];
+  const next = () => tokens[pos++];
+
+  function parseAddSub() {
+    let node = parseMulDiv();
+    while (peek() && peek().type === 'op' && (peek().value === '+' || peek().value === '-')) {
+      const op = next().value;
+      const rhs = parseMulDiv();
+      node = { type: 'bin', op, left: node, right: rhs };
+    }
+    return node;
+  }
+  function parseMulDiv() {
+    let node = parsePow();
+    while (peek() && peek().type === 'op' && (peek().value === '*' || peek().value === '/')) {
+      const op = next().value;
+      const rhs = parsePow();
+      node = { type: 'bin', op, left: node, right: rhs };
+    }
+    return node;
+  }
+  function parsePow() {
+    let node = parseUnary();
+    if (peek() && peek().type === 'op' && peek().value === '^') {
+      next();
+      const rhs = parsePow();
+      node = { type: 'bin', op: '^', left: node, right: rhs };
+    }
+    return node;
+  }
+  function parseUnary() {
+    if (peek() && peek().type === 'op' && peek().value === '-') {
+      next();
+      return { type: 'neg', arg: parseUnary() };
+    }
+    return parsePrimary();
+  }
+  function parsePrimary() {
+    const tok = peek();
+    if (!tok) throw new Error('式が不完全です');
+    if (tok.type === 'num') { next(); return { type: 'num', value: tok.value }; }
+    if (tok.type === 'op' && tok.value === '(') {
+      next();
+      const node = parseAddSub();
+      if (!peek() || peek().value !== ')') throw new Error(') が必要です');
+      next();
+      return node;
+    }
+    if (tok.type === 'id') {
+      next();
+      if (peek() && peek().type === 'op' && peek().value === '(') {
+        next();
+        const arg = parseAddSub();
+        if (!peek() || peek().value !== ')') throw new Error(') が必要です');
+        next();
+        return { type: 'call', name: tok.value, arg };
+      }
+      return { type: 'id', name: tok.value };
+    }
+    throw new Error(`予期しないトークン: ${tok.value}`);
+  }
+
+  const ast = parseAddSub();
+  if (pos < tokens.length) throw new Error('式の末尾が不正です');
+  return ast;
+}
+
+function evalAst(node, x) {
+  switch (node.type) {
+    case 'num': return node.value;
+    case 'neg': return -evalAst(node.arg, x);
+    case 'id':
+      if (node.name === 'x') return x;
+      if (node.name in CONSTS) return CONSTS[node.name];
+      throw new Error(`未定義の変数: ${node.name}`);
+    case 'call': {
+      if (!(node.name in FUNCS)) throw new Error(`未定義の関数: ${node.name}`);
+      return FUNCS[node.name](evalAst(node.arg, x));
+    }
+    case 'bin': {
+      const l = evalAst(node.left, x), r = evalAst(node.right, x);
+      switch (node.op) {
+        case '+': return l + r;
+        case '-': return l - r;
+        case '*': return l * r;
+        case '/': return l / r;
+        case '^': return Math.pow(l, r);
+      }
+    }
+  }
+  throw new Error('評価に失敗しました');
+}
+
+// 式文字列を x -> 数値 の関数にコンパイルする (eval/Function 不使用)
+export function compilePotential(expr) {
+  const ast = parseExpr(expr);
+  evalAst(ast, 0); // 早期に文法エラーを検出
+  return (x) => evalAst(ast, x);
+}
+
+// 実対称行列の固有値・固有ベクトルを求める古典的 Jacobi 法
+// A: Float64Array(n*n) row-major (破壊的に変更される), n: 次元
+// 戻り値: { values: Float64Array(n), vectors: Float64Array(n*n) (列ベクトルが固有ベクトル) }
+export function jacobiEigenSymmetric(A, n, maxSweeps = 100, tol = 1e-11) {
+  const V = new Float64Array(n * n);
+  for (let i = 0; i < n; i++) V[i * n + i] = 1;
+
+  const at = (M, i, j) => M[i * n + j];
+  const set = (M, i, j, v) => { M[i * n + j] = v; };
+
+  for (let sweep = 0; sweep < maxSweeps; sweep++) {
+    let off = 0;
+    for (let i = 0; i < n; i++)
+      for (let j = i + 1; j < n; j++) off += at(A, i, j) * at(A, i, j);
+    if (off < tol) break;
+
+    for (let p = 0; p < n - 1; p++) {
+      for (let q = p + 1; q < n; q++) {
+        const apq = at(A, p, q);
+        if (Math.abs(apq) < 1e-15) continue;
+        const app = at(A, p, p), aqq = at(A, q, q);
+        const phi = 0.5 * Math.atan2(2 * apq, aqq - app);
+        const c = Math.cos(phi), s = Math.sin(phi);
+
+        for (let k = 0; k < n; k++) {
+          const akp = at(A, k, p), akq = at(A, k, q);
+          set(A, k, p, c * akp - s * akq);
+          set(A, k, q, s * akp + c * akq);
+        }
+        for (let k = 0; k < n; k++) {
+          const apk = at(A, p, k), aqk = at(A, q, k);
+          set(A, p, k, c * apk - s * aqk);
+          set(A, q, k, s * apk + c * aqk);
+        }
+        for (let k = 0; k < n; k++) {
+          const vkp = at(V, k, p), vkq = at(V, k, q);
+          set(V, k, p, c * vkp - s * vkq);
+          set(V, k, q, s * vkp + c * vkq);
+        }
+      }
+    }
+  }
+
+  const values = new Float64Array(n);
+  for (let i = 0; i < n; i++) values[i] = at(A, i, i);
+
+  // 昇順ソート (固有ベクトルの列も並べ替え)
+  const order = Array.from({ length: n }, (_, i) => i).sort((a, b) => values[a] - values[b]);
+  const sortedValues = new Float64Array(n);
+  const sortedVectors = new Float64Array(n * n);
+  for (let newIdx = 0; newIdx < n; newIdx++) {
+    const oldIdx = order[newIdx];
+    sortedValues[newIdx] = values[oldIdx];
+    for (let k = 0; k < n; k++) sortedVectors[k * n + newIdx] = V[k * n + oldIdx];
+  }
+  return { values: sortedValues, vectors: sortedVectors };
+}

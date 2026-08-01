@@ -145,6 +145,21 @@ html, body {
 }
 .readout .unit { color: var(--text-dim); font-size: 0.78rem; }
 
+.hint { color: var(--text-dim); font-size: 0.75rem; margin: -8px 0 14px; line-height: 1.5; }
+.error { color: #ff6b6b; font-size: 0.82rem; margin-top: 8px; min-height: 1.2em; }
+
+.controls input[type="text"] {
+  width: 100%;
+  margin-top: 6px;
+  padding: 8px 10px;
+  background: var(--bg-alt);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 0.85rem;
+}
+
 .plots { display: flex; flex-direction: column; gap: 20px; }
 .plot-card {
   background: var(--card);
