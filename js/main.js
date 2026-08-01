@@ -4,6 +4,9 @@ import { initTunneling } from './modules/tunneling.js';
 import { initHydrogen } from './modules/hydrogen.js';
 import { initDoubleSlit } from './modules/doubleSlit.js';
 import { initCustomPotential } from './modules/customPotential.js';
+import { initBackground } from './utils/background.js';
+
+initBackground(document.getElementById('bg-canvas'));
 
 const MODULES = [
   { id: 'well', label: '無限井戸型ポテンシャル', init: initInfiniteWell },

@@ -1,6 +1,7 @@
 // 量子トンネル効果: ガウス波束のポテンシャル障壁への衝突 (split-step Fourier 法)
 import { fft } from '../utils/math.js';
 import { linePlot } from '../utils/plot.js';
+import { beginnerBox } from '../utils/explainer.js';
 
 const N = 512;      // グリッド点数 (2の累乗)
 const XMIN = -30, XMAX = 30;
@@ -11,6 +12,15 @@ export function initTunneling(root) {
     <div class="module-grid">
       <div class="controls">
         <h2>量子トンネル効果<br><span class="sub">Quantum Tunneling</span></h2>
+        ${beginnerBox({
+          what: '普通、ボールを壁に投げれば跳ね返るだけです。しかし電子のような小さな粒子は、乗り越えるだけのエネルギーが無くても、時々「壁をすり抜けて」向こう側に現れてしまうことがあります。これがトンネル効果で、太陽が輝く核融合や、スマホのフラッシュメモリなど、実は身近な技術の裏側で使われています。',
+          analogy: 'ボールを壁にぶつけると必ず跳ね返りますが、量子の世界のボール(波)は「幽霊のように」ごく低い確率で壁の向こうにすり抜けて現れることがあります。',
+          steps: [
+            '「▶ 再生」ボタンを押して、オレンジ色の波のかたまり(粒子)が灰色の壁(障壁)にぶつかる様子を見てみましょう。',
+            '一部が跳ね返り(反射)、一部がわずかに壁の向こうに通り抜ける(透過)のが分かります。',
+            '「障壁の高さ」を下げたり「障壁の幅」を狭くしたりすると、右側に通り抜ける確率(透過率T)が上がることを確認しましょう。',
+          ],
+        })}
         <p class="desc">
           古典力学では乗り越えられないはずの障壁 (E &lt; V₀) を、量子力学的な波束は
           有限の確率で通り抜けます。split-step Fourier 法でシュレーディンガー方程式を
