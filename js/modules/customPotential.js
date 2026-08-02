@@ -2,7 +2,7 @@
 // (機械学習ではなく、有限差分ハミルトニアン + Jacobi法による数値線形代数エンジン)
 import { compilePotential, jacobiEigenSymmetric } from '../utils/math.js';
 import { linePlot } from '../utils/plot.js';
-import { beginnerBox } from '../utils/explainer.js';
+import { mountBeginnerBox } from '../utils/explainer.js';
 
 const PRESETS = [
   { label: '調和振動子: 0.5*x^2', expr: '0.5*x^2' },
@@ -15,18 +15,10 @@ const PRESETS = [
 
 export function initCustomPotential(root) {
   root.innerHTML = `
+    <div class="module-topbar"><div id="cp-beginner"></div></div>
     <div class="module-grid">
       <div class="controls">
         <h2>汎用ポテンシャル・ソルバー<br><span class="sub">Numerical Schrödinger Solver</span></h2>
-        ${beginnerBox({
-          what: 'これまでのタブは「決まった形」のポテンシャル(箱・バネ・障壁)でしたが、ここでは自分で好きな形の「エネルギーの地形」V(x)を作れます。式を入れて「解く」ボタンを押すだけで、コンピュータがその地形の中で粒子がとれるエネルギーと、その状態での波の形を自動的に計算してくれます。',
-          analogy: '自分で山や谷の形をデザインして、そこにボールを転がしたらどんな動き方をするかをシミュレーションしてくれる「量子版の実験装置」のようなものです。',
-          steps: [
-            'まずは「プリセット」から好きな形を選んで「数値的に解く」を押してみましょう。',
-            'エネルギー準位図(下のグラフ)に、その地形で許される飛び飛びのエネルギーが表示されます。',
-            '「二重井戸」を選ぶと、2つの谷のエネルギーがペアのように近い値になることに気づくはずです。これも量子力学ならではの現象です。',
-          ],
-        })}
         <p class="desc">
           <b>V(x) を自由に入力</b>すると、有限差分法でハミルトニアン行列を作り、
           Jacobi固有値アルゴリズムでその場で数値的に対角化し、固有エネルギーと波動関数を求めます。
@@ -63,6 +55,16 @@ export function initCustomPotential(root) {
       </div>
     </div>
   `;
+
+  mountBeginnerBox(root.querySelector('#cp-beginner'), {
+    what: 'これまでのタブは「決まった形」のポテンシャル(箱・バネ・障壁)でしたが、ここでは自分で好きな形の「エネルギーの地形」V(x)を作れます。式を入れて「解く」ボタンを押すだけで、コンピュータがその地形の中で粒子がとれるエネルギーと、その状態での波の形を自動的に計算してくれます。',
+    analogy: '自分で山や谷の形をデザインして、そこにボールを転がしたらどんな動き方をするかをシミュレーションしてくれる「量子版の実験装置」のようなものです。',
+    steps: [
+      'まずは「プリセット」から好きな形を選んで「数値的に解く」を押してみましょう。',
+      'エネルギー準位図(下のグラフ)に、その地形で許される飛び飛びのエネルギーが表示されます。',
+      '「二重井戸」を選ぶと、2つの谷のエネルギーがペアのように近い値になることに気づくはずです。これも量子力学ならではの現象です。',
+    ],
+  });
 
   const presetSelect = root.querySelector('#cp-preset');
   const exprInput = root.querySelector('#cp-expr');

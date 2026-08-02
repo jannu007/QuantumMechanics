@@ -1,21 +1,13 @@
 // 無限井戸型ポテンシャル (箱の中の粒子)
 import { linePlot } from '../utils/plot.js';
-import { beginnerBox } from '../utils/explainer.js';
+import { mountBeginnerBox } from '../utils/explainer.js';
 
 export function initInfiniteWell(root) {
   root.innerHTML = `
+    <div class="module-topbar"><div id="iw-beginner"></div></div>
     <div class="module-grid">
       <div class="controls">
         <h2>無限井戸型ポテンシャル<br><span class="sub">Particle in a Box</span></h2>
-        ${beginnerBox({
-          what: '電子のような超小さな粒子を「箱」に閉じ込めると、粒子はどんなエネルギーでも持てるわけではなく、決まった特定のエネルギーしか取れなくなります。これが「量子化」と呼ばれる、量子力学の一番基本的な性質です。',
-          analogy: '階段しかないビル。1階と2階の間の高さには立てず、決まった段にしか立てませんよね。粒子のエネルギーもそれと同じで、飛び飛びの値しか取れません。',
-          steps: [
-            '右の「量子数 n」のスライダーを動かしてみましょう。波の山の数がどんどん増えていきます。',
-            '波の山が増えるほど、その状態のエネルギー(下のエネルギー準位図のオレンジの線)が高くなることを確認しましょう。',
-            '「箱の幅 L」を狭くしてみましょう。エネルギーの間隔がさらに広がる=箱を小さくするほど、粒子は身動きが取りづらくエネルギーが上がりやすくなります。',
-          ],
-        })}
         <p class="desc">
           幅 <b>L</b> の箱に閉じ込められた粒子の定常状態。壁の外では波動関数はゼロになります。
           エネルギーは離散的な値 <b>E<sub>n</sub> = n²π²ℏ²/(2mL²)</b> のみ許されます。
@@ -41,6 +33,16 @@ export function initInfiniteWell(root) {
       </div>
     </div>
   `;
+
+  mountBeginnerBox(root.querySelector('#iw-beginner'), {
+    what: '電子のような超小さな粒子を「箱」に閉じ込めると、粒子はどんなエネルギーでも持てるわけではなく、決まった特定のエネルギーしか取れなくなります。これが「量子化」と呼ばれる、量子力学の一番基本的な性質です。',
+    analogy: '階段しかないビル。1階と2階の間の高さには立てず、決まった段にしか立てませんよね。粒子のエネルギーもそれと同じで、飛び飛びの値しか取れません。',
+    steps: [
+      '右の「量子数 n」のスライダーを動かしてみましょう。波の山の数がどんどん増えていきます。',
+      '波の山が増えるほど、その状態のエネルギー(下のエネルギー準位図のオレンジの線)が高くなることを確認しましょう。',
+      '「箱の幅 L」を狭くしてみましょう。エネルギーの間隔がさらに広がる=箱を小さくするほど、粒子は身動きが取りづらくエネルギーが上がりやすくなります。',
+    ],
+  });
 
   const nSlider = root.querySelector('#iw-n');
   const LSlider = root.querySelector('#iw-L');
