@@ -1,38 +1,21 @@
 :root {
-  --bg: #060a16;
-  --bg-alt: #0d1428;
-  --card: rgba(20, 28, 54, 0.6);
-  --card-solid: #131b36;
+  --bg: #000000;
+  --bg-alt: #0a0e1c;
+  --card: rgba(14, 18, 38, 0.6);
+  --card-solid: #10142a;
   --text: #eaf0ff;
   --text-dim: #93a4c9;
   --accent: #5eead4;
   --accent-2: #ffb454;
   --accent-3: #a78bfa;
   --accent-rgb: 94, 234, 212;
-  --border: rgba(120, 150, 220, 0.22);
-  --plot-bg: #070c1a;
+  --border: rgba(140, 165, 230, 0.22);
+  --plot-bg: #04060f;
   --axis: #4a5b78;
   --glow: 0 0 24px rgba(var(--accent-rgb), 0.35);
 }
 
-@media (prefers-color-scheme: light) {
-  :root {
-    --bg: #eef2fb;
-    --bg-alt: #ffffff;
-    --card: rgba(255, 255, 255, 0.72);
-    --card-solid: #ffffff;
-    --text: #131a2e;
-    --text-dim: #495a80;
-    --accent: #0f9d8e;
-    --accent-2: #d97a12;
-    --accent-3: #7c5cec;
-    --accent-rgb: 15, 157, 142;
-    --border: rgba(80, 100, 160, 0.18);
-    --plot-bg: #ffffff;
-    --axis: #b8c2d8;
-    --glow: 0 0 20px rgba(var(--accent-rgb), 0.22);
-  }
-}
+/* 宇宙をイメージした固定のブラック基調テーマ (システムのライト設定に関わらず常時ダーク) */
 
 * { box-sizing: border-box; }
 
@@ -40,7 +23,7 @@ html, body {
   margin: 0;
   padding: 0;
   min-height: 100%;
-  background: var(--bg);
+  background: #000;
   color: var(--text);
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Hiragino Sans", "Yu Gothic", sans-serif;
   overflow-x: hidden;
@@ -50,12 +33,31 @@ html, body {
   *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
 }
 
+.nebula-bg {
+  position: fixed;
+  inset: 0;
+  z-index: -3;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 55% 45% at 18% 25%, rgba(120, 60, 220, 0.32), transparent 60%),
+    radial-gradient(ellipse 50% 40% at 82% 15%, rgba(20, 130, 200, 0.26), transparent 55%),
+    radial-gradient(ellipse 60% 50% at 65% 85%, rgba(200, 50, 140, 0.18), transparent 60%),
+    radial-gradient(ellipse 70% 60% at 10% 90%, rgba(30, 80, 190, 0.2), transparent 55%),
+    #000;
+  background-size: 180% 180%, 160% 160%, 190% 190%, 170% 170%, 100% 100%;
+  animation: nebulaDrift 50s ease-in-out infinite alternate;
+}
+@keyframes nebulaDrift {
+  0%   { background-position: 0% 0%, 100% 0%, 60% 100%, 0% 100%, 0 0; }
+  100% { background-position: 15% 20%, 80% 25%, 40% 80%, 20% 70%, 0 0; }
+}
+
 #bg-canvas {
   position: fixed;
   inset: 0;
   width: 100%;
   height: 100%;
-  z-index: -1;
+  z-index: -2;
   pointer-events: none;
   display: block;
 }
