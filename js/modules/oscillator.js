@@ -1,6 +1,7 @@
 // 量子調和振動子
 import { hermite, factorial } from '../utils/math.js';
 import { linePlot } from '../utils/plot.js';
+import { mountBeginnerBox } from '../utils/explainer.js';
 
 function psiOscillator(n, omega, x) {
   const xi = Math.sqrt(omega) * x;
@@ -10,6 +11,7 @@ function psiOscillator(n, omega, x) {
 
 export function initOscillator(root) {
   root.innerHTML = `
+    <div class="module-topbar"><div id="ho-beginner"></div></div>
     <div class="module-grid">
       <div class="controls">
         <h2>量子調和振動子<br><span class="sub">Quantum Harmonic Oscillator</span></h2>
@@ -40,6 +42,16 @@ export function initOscillator(root) {
       </div>
     </div>
   `;
+
+  mountBeginnerBox(root.querySelector('#ho-beginner'), {
+    what: 'バネにつながったボールのように、真ん中に引き戻される力を受けている粒子(実際には分子の中で原子が振動する動きなどに相当)も、やはり決まった飛び飛びのエネルギーしか持てません。しかも面白いことに、一番エネルギーが低い状態でも振動が完全にゼロになることはありません(ゼロ点エネルギー)。',
+    analogy: '一段の高さが均等な「エネルギーのはしご」。無限井戸と違い、このはしごは段の間隔がどこも同じです。しかも一番下の段に立っていても、完全に静止することは許されません。',
+    steps: [
+      '「量子数 n」を0から増やしてみましょう。エネルギーのはしごを1段ずつ登っていく様子が分かります。',
+      '波の形(青い線)が n が増えるごとに複雑に波打つのを見てみましょう。波の山と谷の数が n と対応しています。',
+      '「角振動数 ω」を変えてみましょう。バネが硬くなる(ωが大きくなる)ほど、はしごの段の間隔が広がります。',
+    ],
+  });
 
   const nSlider = root.querySelector('#ho-n');
   const wSlider = root.querySelector('#ho-w');

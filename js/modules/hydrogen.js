@@ -1,9 +1,11 @@
 // 水素原子の電子軌道 (動径部分 x 実数球面調和関数)
 import { radialHydrogen, realAngular, ORBITALS } from '../utils/math.js';
 import { heatmap, heatColor } from '../utils/plot.js';
+import { mountBeginnerBox } from '../utils/explainer.js';
 
 export function initHydrogen(root) {
   root.innerHTML = `
+    <div class="module-topbar"><div id="hy-beginner"></div></div>
     <div class="module-grid">
       <div class="controls">
         <h2>水素原子の軌道<br><span class="sub">Hydrogen Atom Orbitals</span></h2>
@@ -35,6 +37,16 @@ export function initHydrogen(root) {
       </div>
     </div>
   `;
+
+  mountBeginnerBox(root.querySelector('#hy-beginner'), {
+    what: '原子の中の電子は、よく教科書にあるような「惑星が太陽の周りを回る」ようには動いていません。実際は、雲やモヤのように空間に広がった「存在しやすさの分布」として原子核の周りに広がっています。この形が軌道ごとに違い、s軌道は球形、p軌道はダンベル型など、決まった模様になります。',
+    analogy: '電子は「今どこにいるか」をピンポイントには言えず、「この辺りに現れやすい霧」のようなものだと考えてください。ヒートマップの明るい場所ほど、電子が見つかりやすい場所です。',
+    steps: [
+      '軌道の種類を「s」→「p_z」→「d_z²」と切り替えて、電子雲の形がどんどん複雑になっていく様子を見てみましょう。',
+      '主量子数 n を増やすと、電子雲が原子核から遠くまで、より大きく広がっていくのが分かります。',
+      '下の動径分布関数のグラフで、電子が原子核から「どのくらいの距離」に一番現れやすいかを確認できます。',
+    ],
+  });
 
   const nSlider = root.querySelector('#hy-n');
   const orbSelect = root.querySelector('#hy-orb');

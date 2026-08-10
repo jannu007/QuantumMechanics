@@ -1,8 +1,10 @@
 // 二重スリット実験: 干渉パターンと単一粒子の蓄積
 import { linePlot } from '../utils/plot.js';
+import { mountBeginnerBox } from '../utils/explainer.js';
 
 export function initDoubleSlit(root) {
   root.innerHTML = `
+    <div class="module-topbar"><div id="ds-beginner"></div></div>
     <div class="module-grid">
       <div class="controls">
         <h2>二重スリット実験<span class="sub"><br>Double-Slit Experiment</span></h2>
@@ -38,6 +40,16 @@ export function initDoubleSlit(root) {
       </div>
     </div>
   `;
+
+  mountBeginnerBox(root.querySelector('#ds-beginner'), {
+    what: '電子や光は「つぶ(粒子)」でもあり「波」でもある、という量子力学でいちばん不思議な性質を体験できる実験です。1個ずつ発射しても、たくさん撃ち続けるとスクリーンには縞模様(干渉パターン)が浮かび上がります。まるで1つの粒が同時に2つの穴を通ったかのように振る舞うのです。',
+    analogy: '玉を1個ずつ2つの穴に向けて投げているだけなのに、的にはなぜか「波紋がぶつかり合ったような」縞模様ができあがる、という不思議な現象です。',
+    steps: [
+      '「▶ 粒子を発射」ボタンを押して、右側のスクリーンに点が少しずつ蓄積していく様子を眺めてみましょう。',
+      'しばらく待つと、点の集まりが縞模様(明るい帯と暗い帯)を作ることが分かります。',
+      '「片方のスリットのみ開ける」のチェックを外し、両方の穴を開けると、干渉による縞模様が現れることを比べてみましょう。',
+    ],
+  });
 
   const dSlider = root.querySelector('#ds-d');
   const aSlider = root.querySelector('#ds-a');

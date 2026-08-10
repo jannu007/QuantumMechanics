@@ -3,6 +3,10 @@ import { initOscillator } from './modules/oscillator.js';
 import { initTunneling } from './modules/tunneling.js';
 import { initHydrogen } from './modules/hydrogen.js';
 import { initDoubleSlit } from './modules/doubleSlit.js';
+import { initCustomPotential } from './modules/customPotential.js';
+import { initBackground } from './utils/background.js';
+
+initBackground(document.getElementById('bg-canvas'));
 
 const MODULES = [
   { id: 'well', label: '無限井戸型ポテンシャル', init: initInfiniteWell },
@@ -10,6 +14,7 @@ const MODULES = [
   { id: 'tunneling', label: 'トンネル効果', init: initTunneling },
   { id: 'hydrogen', label: '水素原子の軌道', init: initHydrogen },
   { id: 'doubleslit', label: '二重スリット実験', init: initDoubleSlit },
+  { id: 'custom', label: '汎用ポテンシャル・ソルバー', init: initCustomPotential },
 ];
 
 const tabsEl = document.getElementById('tabs');
